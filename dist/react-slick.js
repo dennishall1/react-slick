@@ -890,6 +890,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      width: trackWidth,
 	      WebkitTransform: 'translate3d(' + targetLeft + 'px, 0px, 0px)',
 	      transform: 'translate3d(' + targetLeft + 'px, 0px, 0px)',
+          msTransform: 'translateX(' + targetLeft + 'px)',
 	      transition: '',
 	      WebkitTransition: ''
 	    };
