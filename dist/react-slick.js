@@ -720,62 +720,70 @@ return /******/ (function(modules) { // webpackBootstrap
 	        curY: posY
 	      }
 	    });   
-	    e.preventDefault();
+
 	  },
 	  swipeMove: function (e) {
-	    if (!this.state.dragging) {
-	      return;
-	    }
-	    if (this.state.animating) {
-	      return;
-	    }
-	    var swipeLeft;
-	    var curLeft, positionOffset;
-	    var touchObject = this.state.touchObject;
+          if (!this.state.dragging) {
+              return;
+          }
+          if (this.state.animating) {
+              return;
+          }
+          var swipeLeft;
+          var curLeft, positionOffset;
+          var touchObject = this.state.touchObject;
 
-	    curLeft = this.getLeft(this.state.currentSlide);
-	    touchObject.curX =  (e.touches )? e.touches[0].pageX : e.clientX;
-	    touchObject.curY =  (e.touches )? e.touches[0].pageY : e.clientY;
-	    touchObject.swipeLength = Math.round(Math.sqrt(Math.pow(touchObject.curX - touchObject.startX, 2)));
-	    
-	    positionOffset = (this.props.rtl === false ? 1 : -1) * (touchObject.curX > touchObject.startX ? 1 : -1);
-	    swipeLeft = curLeft + touchObject.swipeLength * positionOffset;
-	    this.setState({
-	      touchObject: touchObject,
-	      swipeLeft: swipeLeft,
-	      trackStyle: this.getCSS(swipeLeft),
-	    });
-	    e.preventDefault();
+          curLeft = this.getLeft(this.state.currentSlide);
+          touchObject.curX =  (e.touches )? e.touches[0].pageX : e.clientX;
+          touchObject.curY =  (e.touches )? e.touches[0].pageY : e.clientY;
+          touchObject.swipeLength = Math.round(Math.sqrt(Math.pow(touchObject.curX - touchObject.startX, 2)));
+
+          positionOffset = (this.props.rtl === false ? 1 : -1) * (touchObject.curX > touchObject.startX ? 1 : -1);
+          swipeLeft = curLeft + touchObject.swipeLength * positionOffset;
+          this.setState({
+              touchObject: touchObject,
+              swipeLeft: swipeLeft,
+              trackStyle: this.getCSS(swipeLeft),
+          });
+
+          // test for mostly-vertical movement, return if so
+          if (Math.abs(touchObject.curX - touchObject.startX) < Math.abs(touchObject.curY - touchObject.startY) * 0.8)
+              return;
+
+          // don't preventDefault for small horizontal movement
+          if (touchObject.swipeLength > 4) {
+              e.preventDefault();
+          }
 	  },
 	  swipeEnd: function (e) {
-	    e.preventDefault();
-	    if (!this.state.dragging) {
-	      return;
-	    }
-	    var touchObject = this.state.touchObject;
-	    var minSwipe = this.state.listWidth/this.props.touchThreshold;
-	    var swipeDirection = this.swipeDirection(touchObject);
-	    this.setState({
-	      dragging: false,
-	      swipeLeft: null,
-	      touchObject: {} 
-	    }); 
-	    // Fix for #13
-	    if (!touchObject.swipeLength) {
-	      return;
-	    }
-	    if (touchObject.swipeLength > minSwipe) {
-	      if (swipeDirection === 'left') {
-	        this.slideHandler(this.state.currentSlide + this.props.slidesToScroll);
-	      } else if (swipeDirection === 'right') {
-	        this.slideHandler(this.state.currentSlide - this.props.slidesToScroll);
-	      } else {
-	        this.slideHandler(this.state.currentSlide, null, true);
-	      }
-	    } else {
-	      this.slideHandler(this.state.currentSlide, null, true);
-	    }
-	  },
+          if (!this.state.dragging) {
+              return;
+          }
+          var touchObject = this.state.touchObject;
+          var minSwipe = this.state.listWidth/this.props.touchThreshold;
+          var swipeDirection = this.swipeDirection(touchObject);
+          this.setState({
+              dragging: false,
+              swipeLeft: null,
+              touchObject: {}
+          });
+          // Fix for #13
+          if (!touchObject.swipeLength) {
+              return;
+          }
+          if (touchObject.swipeLength > minSwipe) {
+              e.preventDefault();
+              if (swipeDirection === 'left') {
+                  this.slideHandler(this.state.currentSlide + this.props.slidesToScroll);
+              } else if (swipeDirection === 'right') {
+                  this.slideHandler(this.state.currentSlide - this.props.slidesToScroll);
+              } else {
+                  this.slideHandler(this.state.currentSlide, null, true);
+              }
+          } else {
+              this.slideHandler(this.state.currentSlide, null, true);
+          }
+	  }
 	};
 
 	module.exports = EventHandlers;
